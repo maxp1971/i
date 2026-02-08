@@ -19,6 +19,7 @@
             background-color: #e6f7ff; 
             -webkit-tap-highlight-color: transparent; 
             position: relative;
+            color: #333;
         }
 
         /* Bunny Mascot Animation */
@@ -48,7 +49,6 @@
             box-shadow: 0 10px 20px -5px rgba(0,150,255,0.3);
             display: block;
             border: 4px solid white;
-            loading: lazy;
         }
 
         /* GRIGLIE */
@@ -86,6 +86,8 @@
         .bg-gestures { background: #7986CB; }
         .bg-shapes { background: #BA68C8; }
         .bg-body { background: #90A4AE; }
+        .bg-clothes { background: #FFCCBC; }
+        .bg-transports { background: #64B5F6; }
         
         /* UI ELEMENTI */
         .btn-back { 
@@ -111,7 +113,7 @@
         .btn-big { width: 100%; font-size: 1.5rem; padding: 20px; border-radius: 15px; margin-bottom: 15px; color: white; box-shadow: 0 6px 0 rgba(0,0,0,0.1); }
         .btn-learn { background: #4FC3F7; }
         .btn-quiz { background: #81C784; }
-        .btn-item { background: white; padding: 10px; border-radius: 15px; box-shadow: 0 4px 0 #eee; border: 1px solid #f0f0f0; }
+        .btn-item { background: white; padding: 10px; border-radius: 15px; box-shadow: 0 4px 0 #eee; border: 1px solid #f0f0f0; color: #333; }
         
         .quiz-word { font-size: 3rem; color: #333; margin: 20px 0; }
         .celebration { position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%); font-size: 5rem; animation: pop 0.5s; z-index: 100; pointer-events: none; }
@@ -121,10 +123,43 @@
         .error-shake { animation: shake 0.5s; }
         @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
 
-        /* High Contrast Mode */
-        .high-contrast body { background-color: #000; color: #fff; }
-        .high-contrast .container { background-color: #000; }
-        .high-contrast .btn-item { background: #333; color: #fff; border-color: #fff; }
+        /* High Contrast Mode - Improved with more selectors for better visibility */
+        body.high-contrast { 
+            background-color: #000 !important; 
+            color: #fff !important; 
+        }
+        body.high-contrast .container { background-color: #000; }
+        body.high-contrast h1, body.high-contrast h2, body.high-contrast h3, body.high-contrast p { color: #fff !important; }
+        body.high-contrast .btn-item { background: #333 !important; color: #fff !important; border-color: #fff !important; }
+        body.high-contrast .stats-card,
+        body.high-contrast .mode-card { background: #333 !important; color: #fff !important; }
+        body.high-contrast .btn-back { background: #555 !important; color: #fff !important; border-color: #777 !important; }
+        body.high-contrast .btn-category { 
+            border-color: rgba(255,255,255,0.9) !important; 
+            color: #fff !important; 
+        }
+        body.high-contrast .btn-category .category-name { color: #fff !important; }
+        body.high-contrast .progress-bar { background: #555 !important; }
+        body.high-contrast .progress-fill { background: #00ffff !important; }
+        body.high-contrast .quiz-word { color: #fff !important; }
+        body.high-contrast .hint { color: #ccc !important; }
+        body.high-contrast .btn-big { background: #555 !important; color: #fff !important; }
+        body.high-contrast .btn-learn { background: #0066cc !important; }
+        body.high-contrast .btn-quiz { background: #006600 !important; }
+        body.high-contrast .bg-numbers { background: #4a148c !important; }
+        body.high-contrast .bg-colors { background: #bf360c !important; }
+        body.high-contrast .bg-fruits { background: #e65100 !important; }
+        body.high-contrast .bg-animals { background: #880e4f !important; }
+        body.high-contrast .bg-weather { background: #01579b !important; }
+        body.high-contrast .bg-food { background: #1b5e20 !important; }
+        body.high-contrast .bg-family { background: #ff8f00 !important; color: #fff !important; }
+        body.high-contrast .bg-months { background: #004d40 !important; }
+        body.high-contrast .bg-gestures { background: #1a237e !important; }
+        body.high-contrast .bg-shapes { background: #4a148c !important; }
+        body.high-contrast .bg-body { background: #263238 !important; }
+        body.high-contrast .bg-clothes { background: #bf360c !important; }
+        body.high-contrast .bg-transports { background: #01579b !important; }
+        body.high-contrast .banner-img { filter: contrast(2) brightness(1.5); border-color: #fff !important; }
     </style>
 </head>
 <body>
@@ -145,6 +180,15 @@
             const [highContrast, setHighContrast] = useState(false);
             const [dailyStreak, setDailyStreak] = useState(parseInt(localStorage.getItem('dailyStreak')) || 0);
             const [lastPlayed, setLastPlayed] = useState(localStorage.getItem('lastPlayed') || '');
+
+            // Fixed High Contrast: Toggle class on body
+            useEffect(() => {
+                if (highContrast) {
+                    document.body.classList.add('high-contrast');
+                } else {
+                    document.body.classList.remove('high-contrast');
+                }
+            }, [highContrast]);
 
             useEffect(() => {
                 localStorage.setItem('stars', stars);
@@ -170,7 +214,7 @@
                 }
             }, []);
 
-            // DATI RIORGANIZZATI E ARRICCHITI CON LIVELLI
+            // DATI RIORGANIZZATI CON CATEGORIA TRANSPORTS AGGIUNTA
             const data = {
                 numbers: { 
                     name: 'Numbers', 
@@ -178,58 +222,68 @@
                     bg: 'bg-numbers', 
                     levels: [
                         // Level 1: 1-10
-                        [{name:'One',emoji:'1️⃣', desc:'One apple'},{name:'Two',emoji:'2️⃣', desc:'Two bananas'},{name:'Three',emoji:'3️⃣', desc:'Three cats'},{name:'Four',emoji:'4️⃣', desc:'Four dogs'},
-                         {name:'Five',emoji:'5️⃣', desc:'Five stars'},{name:'Six',emoji:'6️⃣', desc:'Six flowers'},{name:'Seven',emoji:'7️⃣', desc:'Seven birds'},{name:'Eight',emoji:'8️⃣', desc:'Eight books'},
-                         {name:'Nine',emoji:'9️⃣', desc:'Nine balls'},{name:'Ten',emoji:'🔟', desc:'Ten friends'}],
+                        [{name:'One',emoji:'1️⃣'},{name:'Two',emoji:'2️⃣'},{name:'Three',emoji:'3️⃣'},{name:'Four',emoji:'4️⃣'},
+                         {name:'Five',emoji:'5️⃣'},{name:'Six',emoji:'6️⃣'},{name:'Seven',emoji:'7️⃣'},{name:'Eight',emoji:'8️⃣'},
+                         {name:'Nine',emoji:'9️⃣'},{name:'Ten',emoji:'🔟'}],
                         // Level 2: 11-20
-                        [{name:'Eleven',emoji:'1️⃣1️⃣', desc:'Eleven cookies'},{name:'Twelve',emoji:'1️⃣2️⃣', desc:'Twelve months'},{name:'Thirteen',emoji:'1️⃣3️⃣', desc:'Thirteen stars'},{name:'Fourteen',emoji:'1️⃣4️⃣', desc:'Fourteen days'},
-                         {name:'Fifteen',emoji:'1️⃣5️⃣', desc:'Fifteen books'},{name:'Sixteen',emoji:'1️⃣6️⃣', desc:'Sixteen candles'},{name:'Seventeen',emoji:'1️⃣7️⃣', desc:'Seventeen flowers'},{name:'Eighteen',emoji:'1️⃣8️⃣', desc:'Eighteen balloons'},
-                         {name:'Nineteen',emoji:'1️⃣9️⃣', desc:'Nineteen animals'},{name:'Twenty',emoji:'2️⃣0️⃣', desc:'Twenty toys'}]
+                        [{name:'Eleven',emoji:'11'},{name:'Twelve',emoji:'12'},{name:'Thirteen',emoji:'13'},{name:'Fourteen',emoji:'14'},
+                         {name:'Fifteen',emoji:'15'},{name:'Sixteen',emoji:'16'},{name:'Seventeen',emoji:'17'},{name:'Eighteen',emoji:'18'},
+                         {name:'Nineteen',emoji:'19'},{name:'Twenty',emoji:'20'}]
                     ]
                 },
                 colors: { name: 'Colors', emoji: '🎨', bg: 'bg-colors', items: [
-                    {name:'Red',emoji:'❤️', desc:'Red apple'},{name:'Blue',emoji:'💙', desc:'Blue sky'},{name:'Green',emoji:'💚', desc:'Green grass'},{name:'Yellow',emoji:'💛', desc:'Yellow sun'},
-                    {name:'Orange',emoji:'🧡', desc:'Orange fruit'},{name:'Purple',emoji:'💜', desc:'Purple flower'},{name:'Pink',emoji:'🩷', desc:'Pink heart'},{name:'Black',emoji:'🖤', desc:'Black cat'},
-                    {name:'White',emoji:'🤍', desc:'White snow'},{name:'Brown',emoji:'🤎', desc:'Brown bear'}
+                    {name:'Red',emoji:'❤️'},{name:'Blue',emoji:'💙'},{name:'Green',emoji:'💚'},{name:'Yellow',emoji:'💛'},
+                    {name:'Orange',emoji:'🧡'},{name:'Purple',emoji:'💜'},{name:'Pink',emoji:'🩷'},{name:'Black',emoji:'🖤'},
+                    {name:'White',emoji:'🤍'},{name:'Brown',emoji:'🤎'}
                 ]},
                 fruits: { name: 'Fruits', emoji: '🍎', bg: 'bg-fruits', items: [
-                    {name:'Apple',emoji:'🍎', desc:'Red apple'},{name:'Banana',emoji:'🍌', desc:'Yellow banana'},{name:'Grape',emoji:'🍇', desc:'Purple grapes'},{name:'Orange',emoji:'🍊', desc:'Orange fruit'},
-                    {name:'Cherry',emoji:'🍒', desc:'Red cherries'},{name:'Strawberry',emoji:'🍓', desc:'Sweet strawberry'},{name:'Watermelon',emoji:'🍉', desc:'Big watermelon'},{name:'Peach',emoji:'🍑', desc:'Juicy peach'},
-                    {name:'Pineapple',emoji:'🍍', desc:'Spiky pineapple'},{name:'Pear',emoji:'🍐', desc:'Green pear'},{name:'Lemon',emoji:'🍋', desc:'Sour lemon'},{name:'Kiwi',emoji:'🥝', desc:'Fuzzy kiwi'}
+                    {name:'Apple',emoji:'🍎'},{name:'Banana',emoji:'🍌'},{name:'Grape',emoji:'🍇'},{name:'Orange',emoji:'🍊'},
+                    {name:'Cherry',emoji:'🍒'},{name:'Strawberry',emoji:'🍓'},{name:'Watermelon',emoji:'🍉'},{name:'Peach',emoji:'🍑'},
+                    {name:'Pineapple',emoji:'🍍'},{name:'Pear',emoji:'🍐'},{name:'Lemon',emoji:'🍋'},{name:'Kiwi',emoji:'🥝'}
                 ]},
                 animals: { name: 'Animals', emoji: '🐶', bg: 'bg-animals', items: [
-                    {name:'Cat',emoji:'🐱', desc:'Meow cat'},{name:'Dog',emoji:'🐶', desc:'Woof dog'},{name:'Lion',emoji:'🦁', desc:'Roar lion'},{name:'Elephant',emoji:'🐘', desc:'Big elephant'},
-                    {name:'Monkey',emoji:'🐵', desc:'Funny monkey'},{name:'Tiger',emoji:'🐯', desc:'Striped tiger'},{name:'Bear',emoji:'🐻', desc:'Hug bear'},{name:'Rabbit',emoji:'🐰', desc:'Hop rabbit'},
-                    {name:'Fox',emoji:'🦊', desc:'Clever fox'},{name:'Panda',emoji:'🐼', desc:'Bamboo panda'},{name:'Pig',emoji:'🐷', desc:'Oink pig'},{name:'Cow',emoji:'🐮', desc:'Moo cow'}
+                    {name:'Cat',emoji:'🐱'},{name:'Dog',emoji:'🐶'},{name:'Lion',emoji:'🦁'},{name:'Elephant',emoji:'🐘'},
+                    {name:'Monkey',emoji:'🐵'},{name:'Tiger',emoji:'🐯'},{name:'Bear',emoji:'🐻'},{name:'Rabbit',emoji:'🐰'},
+                    {name:'Fox',emoji:'🦊'},{name:'Panda',emoji:'🐼'},{name:'Pig',emoji:'🐷'},{name:'Cow',emoji:'🐮'}
                 ]},
                 months: { name: 'Months', emoji: '📅', bg: 'bg-months', items: [
-                    {name:'January',emoji:'❄️', desc:'Cold January'},{name:'February',emoji:'💘', desc:'Love February'},{name:'March',emoji:'🌱', desc:'Spring March'},{name:'April',emoji:'🌧️', desc:'Rainy April'},
-                    {name:'May',emoji:'🌸', desc:'Flower May'},{name:'June',emoji:'☀️', desc:'Sunny June'},{name:'July',emoji:'🏖️', desc:'Beach July'},{name:'August',emoji:'🍦', desc:'Ice cream August'},
-                    {name:'September',emoji:'🎒', desc:'School September'},{name:'October',emoji:'🎃', desc:'Halloween October'},{name:'November',emoji:'🍂', desc:'Fall November'},{name:'December',emoji:'🎄', desc:'Christmas December'}
+                    {name:'January',emoji:'❄️'},{name:'February',emoji:'💘'},{name:'March',emoji:'🌱'},{name:'April',emoji:'🌧️'},
+                    {name:'May',emoji:'🌸'},{name:'June',emoji:'☀️'},{name:'July',emoji:'🏖️'},{name:'August',emoji:'🍦'},
+                    {name:'September',emoji:'🎒'},{name:'October',emoji:'🎃'},{name:'November',emoji:'🍂'},{name:'December',emoji:'🎄'}
                 ]},
                 weather: { name: 'Weather', emoji: '🌤️', bg: 'bg-weather', items: [
-                    {name:'Sun',emoji:'☀️', desc:'Bright sun'},{name:'Rain',emoji:'🌧️', desc:'Wet rain'},{name:'Cloud',emoji:'☁️', desc:'Fluffy cloud'},{name:'Snow',emoji:'❄️', desc:'White snow'},
-                    {name:'Wind',emoji:'💨', desc:'Strong wind'},{name:'Storm',emoji:'⚡', desc:'Thunder storm'}
+                    {name:'Sun',emoji:'☀️'},{name:'Rain',emoji:'🌧️'},{name:'Cloud',emoji:'☁️'},{name:'Snow',emoji:'❄️'},
+                    {name:'Wind',emoji:'💨'},{name:'Storm',emoji:'⚡'}
                 ]},
                 food: { name: 'Food', emoji: '🍔', bg: 'bg-food', items: [
-                    {name:'Apple',emoji:'🍎', desc:'Healthy apple'},{name:'Pizza',emoji:'🍕', desc:'Yummy pizza'},{name:'Burger',emoji:'🍔', desc:'Big burger'},{name:'Ice Cream',emoji:'🍦', desc:'Sweet ice cream'},
-                    {name:'Cake',emoji:'🍰', desc:'Birthday cake'},{name:'Milk',emoji:'🥛', desc:'White milk'}
+                    {name:'Apple',emoji:'🍎'},{name:'Pizza',emoji:'🍕'},{name:'Burger',emoji:'🍔'},{name:'Ice Cream',emoji:'🍦'},
+                    {name:'Cake',emoji:'🍰'},{name:'Milk',emoji:'🥛'}
                 ]},
                 family: { name: 'Family', emoji: '👨‍👩‍👧', bg: 'bg-family', items: [
-                    {name:'Mom',emoji:'👩', desc:'Loving mom'},{name:'Dad',emoji:'👨', desc:'Strong dad'},{name:'Sister',emoji:'👧', desc:'Play sister'},{name:'Brother',emoji:'👦', desc:'Fun brother'},
-                    {name:'Grandma',emoji:'👵', desc:'Wise grandma'},{name:'Grandpa',emoji:'👴', desc:'Story grandpa'}
+                    {name:'Mom',emoji:'👩'},{name:'Dad',emoji:'👨'},{name:'Sister',emoji:'👧'},{name:'Brother',emoji:'👦'},
+                    {name:'Grandma',emoji:'👵'},{name:'Grandpa',emoji:'👴'}
                 ]},
                 gestures: { name: 'Gestures', emoji: '🤝', bg: 'bg-gestures', items: [
-                    {name:'Hi',emoji:'👋', desc:'Wave hi'},{name:'Yes',emoji:'👍', desc:'Thumbs up yes'},{name:'No',emoji:'👎', desc:'Thumbs down no'},{name:'Clap',emoji:'👏', desc:'Clap hands'},
-                    {name:'Peace',emoji:'✌️', desc:'Peace sign'},{name:'Love',emoji:'🤟', desc:'I love you'}
+                    {name:'Hi',emoji:'👋'},{name:'Yes',emoji:'👍'},{name:'No',emoji:'👎'},{name:'Clap',emoji:'👏'},
+                    {name:'Peace',emoji:'✌️'},{name:'Love',emoji:'🤟'}
                 ]},
                 shapes: { name: 'Shapes', emoji: '⭐', bg: 'bg-shapes', items: [
-                    {name:'Circle',emoji:'⭕', desc:'Round circle'},{name:'Square',emoji:'🟦', desc:'Four sides square'},{name:'Star',emoji:'⭐', desc:'Shiny star'},{name:'Heart',emoji:'❤️', desc:'Love heart'},
-                    {name:'Triangle',emoji:'🔺', desc:'Three sides triangle'},{name:'Diamond',emoji:'💎', desc:'Shiny diamond'}
+                    {name:'Circle',emoji:'⭕'},{name:'Square',emoji:'🟦'},{name:'Star',emoji:'⭐'},{name:'Heart',emoji:'❤️'},
+                    {name:'Triangle',emoji:'🔺'},{name:'Diamond',emoji:'💎'}
                 ]},
                 body: { name: 'Body', emoji: '👀', bg: 'bg-body', items: [
-                    {name:'Eye',emoji:'👀', desc:'See with eye'},{name:'Ear',emoji:'👂', desc:'Hear with ear'},{name:'Hand',emoji:'👋', desc:'Wave with hand'},{name:'Nose',emoji:'👃', desc:'Smell with nose'},
-                    {name:'Mouth',emoji:'👄', desc:'Eat with mouth'},{name:'Foot',emoji:'🦶', desc:'Walk with foot'}
+                    {name:'Eye',emoji:'👀'},{name:'Ear',emoji:'👂'},{name:'Hand',emoji:'👋'},{name:'Nose',emoji:'👃'},
+                    {name:'Mouth',emoji:'👄'},{name:'Foot',emoji:'🦶'}
+                ]},
+                clothes: { name: 'Clothes', emoji: '👕', bg: 'bg-clothes', items: [
+                    {name:'Shirt',emoji:'👕'},{name:'Pants',emoji:'👖'},{name:'Dress',emoji:'👗'},{name:'Hat',emoji:'🎩'},
+                    {name:'Shoes',emoji:'👟'},{name:'Socks',emoji:'🧦'},{name:'Jacket',emoji:'🧥'},{name:'Scarf',emoji:'🧣'},
+                    {name:'Tie',emoji:'👔'},{name:'Shorts',emoji:'🩳'},{name:'Cap',emoji:'🧢'},{name:'Gloves',emoji:'🧤'}
+                ]},
+                transports: { name: 'Transports', emoji: '🚗', bg: 'bg-transports', items: [
+                    {name:'Car',emoji:'🚗'},{name:'Bus',emoji:'🚌'},{name:'Train',emoji:'🚂'},{name:'Airplane',emoji:'✈️'},
+                    {name:'Bicycle',emoji:'🚲'},{name:'Boat',emoji:'⛵'},{name:'Motorcycle',emoji:'🏍️'},{name:'Truck',emoji:'🚚'},
+                    {name:'Helicopter',emoji:'🚁'},{name:'Scooter',emoji:'🛴'},{name:'Subway',emoji:'🚇'},{name:'Ship',emoji:'🚢'}
                 ]}
             };
 
@@ -275,11 +329,11 @@
                 if (item.name === quiz.correct.name) {
                     setStars(s => s + 2);
                     setCelebration('⭐⭐🎉');
-                    speak('Good job! You found the ' + quiz.correct.name + '!');
+                    speak('Good job!');
                     updateProgress(category, 1);
                     setTimeout(() => { setCelebration(null); startQuiz(); }, 1500);
                 } else {
-                    setHint(`Hint: It ${quiz.correct.desc.toLowerCase()}`);
+                    setHint(`Hint: It starts with ${quiz.correct.name.charAt(0)}`);
                     const btn = document.querySelector(`[data-item="${item.name}"]`);
                     if (btn) btn.classList.add('error-shake');
                     setTimeout(() => btn?.classList.remove('error-shake'), 500);
@@ -338,7 +392,9 @@
                         </div>
                         <div className="progress-bar" style={{marginTop: '20px'}}>
                             <p>Progress: {progress[category]?.completed || 0} / {currentItems.length}</p>
-                            <div className="progress-fill" style={{width: `${((progress[category]?.completed || 0) / currentItems.length) * 100}%`}}></div>
+                            <div style={{background: '#f0f0f0', height: '10px', borderRadius: '5px', margin: '10px 0', overflow: 'hidden'}}>
+                                <div className="progress-fill" style={{width: `${((progress[category]?.completed || 0) / currentItems.length) * 100}%`}}></div>
+                            </div>
                         </div>
                         <div className="bunny-mascot">🐰</div>
                     </div>
@@ -353,10 +409,9 @@
                         <h2 style={{textAlign:'center', marginBottom:'15px'}}>{data[category].name} {category === 'numbers' ? `(Level ${level})` : ''}</h2>
                         <div className="grid-3">
                             {currentItems.map((item, i) => (
-                                <button key={i} className="btn btn-item" onClick={() => speak(item.name + '. ' + item.desc)}>
+                                <button key={i} className="btn btn-item" onClick={() => speak(item.name)}>
                                     <div style={{fontSize:'2.5rem'}}>{item.emoji}</div>
                                     <div style={{color:'#555', marginTop:'5px'}}>{item.name}</div>
-                                    <div style={{fontSize:'0.7rem', color:'#888'}}>{item.desc}</div>
                                 </button>
                             ))}
                         </div>
@@ -372,7 +427,7 @@
                         <div style={{margin:'20px 0'}}>
                             <p style={{color:'#666', fontSize:'1.2rem'}}>Find the:</p>
                             <h1 className="quiz-word">{quiz.correct.name}</h1>
-                            <button onClick={() => speak(quiz.correct.name + '. ' + quiz.correct.desc)} style={{background:'none', border:'none', fontSize:'1.2rem', color:'#0066cc'}}>🔊 Listen</button>
+                            <button onClick={() => speak(quiz.correct.name)} style={{background:'none', border:'none', fontSize:'1.2rem', color:'#0066cc'}}>🔊 Listen</button>
                             {hint && <p className="hint">{hint}</p>}
                         </div>
 
