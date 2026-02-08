@@ -5,174 +5,254 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bunny English Adventure</title>
 
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
 <style>
 body{
   margin:0;
   font-family:'Comic Sans MS', cursive;
-  background:linear-gradient(#cdefff,#fdf6ff);
+  background:linear-gradient(#aee1f9,#fde2ff);
   text-align:center;
 }
 
-/* HEADER */
-header{
-  background:#ffe4f2;
-  padding:20px;
-  border-bottom:5px solid #ffd1e8;
+.topbar{
+  display:flex;
+  justify-content:space-between;
+  padding:15px;
+  font-size:24px;
+  font-weight:bold;
 }
 
-h1{
-  color:#ff6fb5;
-  margin:0;
-}
-
-.bunny{
-  font-size:70px;
-  animation:bounce 2s infinite;
-}
-
-@keyframes bounce{
-  0%,100%{transform:translateY(0);}
-  50%{transform:translateY(-10px);}
-}
-
-.level-select{
+.hero{
+  background:white;
   margin:20px;
+  border-radius:30px;
+  padding:25px;
+  box-shadow:0 8px 20px rgba(0,0,0,0.15);
 }
 
-.level-btn{
-  padding:12px 20px;
-  margin:5px;
-  border:none;
-  border-radius:20px;
-  background:#ffd6a5;
-  font-size:18px;
-  cursor:pointer;
+.hero h1{
+  font-size:36px;
+  color:#0066cc;
+  margin-bottom:10px;
+}
+
+.hero p{
+  font-size:20px;
+  color:#444;
+}
+
+.world-container{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:20px;
+  padding:20px;
 }
 
 .world{
-  display:none;
-  margin-top:20px;
-}
-
-.card{
-  display:inline-block;
   background:white;
+  width:160px;
   padding:20px;
-  margin:10px;
-  border-radius:20px;
-  box-shadow:0 5px 10px rgba(0,0,0,0.1);
-  font-size:20px;
+  border-radius:25px;
+  box-shadow:0 6px 15px rgba(0,0,0,0.15);
   cursor:pointer;
   transition:0.3s;
 }
 
-.card:hover{
+.world:hover{
   transform:scale(1.1);
-  background:#f0faff;
 }
 
-.result{
-  font-size:22px;
-  margin-top:15px;
-  color:#ff6fb5;
+.world span{
+  font-size:50px;
 }
 
-footer{
-  margin-top:40px;
-  padding:20px;
-  background:#ffe4f2;
+.btn{
+  margin:10px;
+  padding:15px 25px;
+  font-size:18px;
+  border:none;
+  border-radius:20px;
+  background:#ffb703;
+  color:white;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+input{
+  padding:12px;
+  font-size:18px;
+  border-radius:15px;
+  border:2px solid #ffb703;
+  margin-top:10px;
 }
 </style>
 </head>
 
 <body>
+<div id="root"></div>
 
-<header>
-  <div class="bunny">🐰</div>
-  <h1>Hi! I'm Bunny!</h1>
-  <p>Let's Learn English Together!</p>
-</header>
+<script type="text/babel">
 
-<div class="level-select">
-  <button class="level-btn" onclick="showLevel('kids')">4-6 years</button>
-  <button class="level-btn" onclick="showLevel('junior')">7-9 years</button>
-  <button class="level-btn" onclick="showLevel('pro')">10-12 years</button>
-</div>
+const {useState} = React;
 
-<!-- LEVEL 4-6 -->
-<div id="kids" class="world">
-  <h2>👨‍👩‍👧 FAMILY WORLD</h2>
-  <p>Tap the correct word!</p>
+const data = {
+  weather:[
+    {name:"Sun",emoji:"☀️"},
+    {name:"Rain",emoji:"🌧️"},
+    {name:"Snow",emoji:"❄️"},
+    {name:"Cloud",emoji:"☁️"}
+  ],
+  food:[
+    {name:"Pizza",emoji:"🍕"},
+    {name:"Apple",emoji:"🍎"},
+    {name:"Bread",emoji:"🍞"},
+    {name:"Milk",emoji:"🥛"}
+  ],
+  family:[
+    {name:"Mother",emoji:"👩"},
+    {name:"Father",emoji:"👨"},
+    {name:"Brother",emoji:"👦"},
+    {name:"Sister",emoji:"👧"}
+  ],
+  animals:[
+    {name:"Dog",emoji:"🐶"},
+    {name:"Cat",emoji:"🐱"},
+    {name:"Lion",emoji:"🦁"},
+    {name:"Elephant",emoji:"🐘"}
+  ],
+  numbers:[
+    {name:"One",emoji:"1️⃣"},
+    {name:"Two",emoji:"2️⃣"},
+    {name:"Three",emoji:"3️⃣"},
+    {name:"Four",emoji:"4️⃣"}
+  ]
+};
 
-  <div class="card" onclick="checkAnswer(this,'mom')">👩 Mom</div>
-  <div class="card" onclick="checkAnswer(this,'dad')">👨 Dad</div>
-  <div class="card" onclick="checkAnswer(this,'brother')">👦 Brother</div>
-  <div class="card" onclick="checkAnswer(this,'sister')">👧 Sister</div>
+function App(){
 
-  <div id="resultKids" class="result"></div>
-</div>
+  const [screen,setScreen]=useState("home");
+  const [world,setWorld]=useState(null);
+  const [quiz,setQuiz]=useState(null);
+  const [mode,setMode]=useState("choice");
+  const [stars,setStars]=useState(0);
+  const [hearts,setHearts]=useState(3);
+  const [input,setInput]=useState("");
 
-<!-- LEVEL 7-9 -->
-<div id="junior" class="world">
-  <h2>🧠 Match the Word</h2>
-  <p>Who is this? 👩</p>
+  const speak=(text)=>{
+    const u=new SpeechSynthesisUtterance(text);
+    u.lang="en-US";
+    speechSynthesis.speak(u);
+  };
 
-  <div class="card" onclick="quizJunior('mom')">Mom</div>
-  <div class="card" onclick="quizJunior('dad')">Dad</div>
-  <div class="card" onclick="quizJunior('brother')">Brother</div>
+  const startQuiz=(selectedMode)=>{
+    setMode(selectedMode);
+    const items=data[world];
+    const correct=items[Math.floor(Math.random()*items.length)];
+    const options=[...items].sort(()=>0.5-Math.random()).slice(0,4);
+    setQuiz({correct,options});
+    speak(correct.name);
+    setScreen("quiz");
+  };
 
-  <div id="resultJunior" class="result"></div>
-</div>
+  const checkAnswer=(answer)=>{
+    if(answer.toLowerCase()===quiz.correct.name.toLowerCase()){
+      setStars(stars+5);
+      alert("Great job! ⭐");
+      startQuiz(mode);
+    }else{
+      setHearts(hearts-1);
+      if(hearts-1<=0){
+        alert("Game Over!");
+        setHearts(3);
+        setStars(0);
+        setScreen("home");
+      }
+    }
+  };
 
-<!-- LEVEL 10-12 -->
-<div id="pro" class="world">
-  <h2>✏️ Write the correct word</h2>
-  <p>She is my father's daughter. She is my ______.</p>
+  if(screen==="home"){
+    return(
+      <>
+      <div className="topbar">
+        <div>❤️ {hearts}</div>
+        <div>⭐ {stars}</div>
+      </div>
 
-  <input type="text" id="answerPro" placeholder="Type here">
-  <button class="level-btn" onclick="checkPro()">Check</button>
+      <div className="hero">
+        <h1>Hi! I'm Bunny 🐰</h1>
+        <p>Let's learn English!</p>
+      </div>
 
-  <div id="resultPro" class="result"></div>
-</div>
+      <div className="world-container">
+        <div className="world" onClick={()=>{setWorld("weather");}}>
+          <span>☀️</span>
+          <h3>Weather</h3>
+        </div>
+        <div className="world" onClick={()=>{setWorld("food");}}>
+          <span>🍔</span>
+          <h3>Food</h3>
+        </div>
+        <div className="world" onClick={()=>{setWorld("family");}}>
+          <span>👨‍👩‍👧</span>
+          <h3>Family</h3>
+        </div>
+        <div className="world" onClick={()=>{setWorld("animals");}}>
+          <span>🐶</span>
+          <h3>Animals</h3>
+        </div>
+        <div className="world" onClick={()=>{setWorld("numbers");}}>
+          <span>🔢</span>
+          <h3>Numbers</h3>
+        </div>
+      </div>
 
-<footer>
-  Made with ❤️ by Bunny
-</footer>
+      {world && (
+        <div>
+          <button className="btn" onClick={()=>startQuiz("choice")}>Easy Quiz</button>
+          <button className="btn" onClick={()=>startQuiz("write")}>Writing Mode</button>
+        </div>
+      )}
+      </>
+    );
+  }
 
-<script>
+  if(screen==="quiz"){
+    return(
+      <>
+      <div className="topbar">
+        <div>❤️ {hearts}</div>
+        <div>⭐ {stars}</div>
+      </div>
 
-function showLevel(level){
-  document.getElementById('kids').style.display='none';
-  document.getElementById('junior').style.display='none';
-  document.getElementById('pro').style.display='none';
-  document.getElementById(level).style.display='block';
-}
+      <h1>{quiz.correct.emoji}</h1>
 
-/* LEVEL 4-6 */
-function checkAnswer(element,word){
-  document.getElementById('resultKids').innerHTML="Great job! ⭐";
-}
+      {mode==="choice" && quiz.options.map((o,i)=>(
+        <button key={i} className="btn" onClick={()=>checkAnswer(o.name)}>
+          {o.name}
+        </button>
+      ))}
 
-/* LEVEL 7-9 */
-function quizJunior(answer){
-  if(answer=="mom"){
-    document.getElementById('resultJunior').innerHTML="Correct! 🎉";
-  } else{
-    document.getElementById('resultJunior').innerHTML="Try again!";
+      {mode==="write" && (
+        <>
+        <input value={input} onChange={(e)=>setInput(e.target.value)} />
+        <br/>
+        <button className="btn" onClick={()=>checkAnswer(input)}>Send</button>
+        </>
+      )}
+
+      <br/>
+      <button className="btn" onClick={()=>setScreen("home")}>Exit</button>
+      </>
+    );
   }
 }
 
-/* LEVEL 10-12 */
-function checkPro(){
-  let value=document.getElementById('answerPro').value.toLowerCase();
-  if(value=="sister"){
-    document.getElementById('resultPro').innerHTML="Excellent! 🏆";
-  } else{
-    document.getElementById('resultPro').innerHTML="Not correct. Try again!";
-  }
-}
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
 
 </script>
-
 </body>
 </html>
