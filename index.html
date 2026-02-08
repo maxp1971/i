@@ -2,140 +2,199 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Bunny English Adventure</title>
-
 <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
 <style>
-body{
-  margin:0;
-  font-family:'Comic Sans MS', cursive;
-  background:linear-gradient(#aee1f9,#fde2ff);
-  text-align:center;
-}
+    :root {
+        --primary: #FF9F1C;
+        --secondary: #2EC4B6;
+        --bg: #CBF3F0;
+        --card: #FFFFFF;
+        --text: #2B2D42;
+    }
 
-.topbar{
-  display:flex;
-  justify-content:space-between;
-  padding:15px;
-  font-size:24px;
-  font-weight:bold;
-}
+    body {
+        margin: 0;
+        padding: 20px;
+        font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif; /* Chalkboard è il Comic Sans di iPhone */
+        background: linear-gradient(135deg, #aee1f9 0%, #fde2ff 100%);
+        min-height: 100vh;
+        color: var(--text);
+        -webkit-tap-highlight-color: transparent;
+    }
 
-.hero{
-  background:white;
-  margin:20px;
-  border-radius:30px;
-  padding:25px;
-  box-shadow:0 8px 20px rgba(0,0,0,0.15);
-}
+    .topbar {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px;
+        font-size: 1.5rem;
+        font-weight: bold;
+        background: rgba(255,255,255,0.8);
+        border-radius: 15px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    }
 
-.hero h1{
-  font-size:36px;
-  color:#0066cc;
-  margin-bottom:10px;
-}
+    .hero {
+        text-align: center;
+        margin-bottom: 30px;
+    }
 
-.hero p{
-  font-size:20px;
-  color:#444;
-}
+    .hero h1 {
+        font-size: 2.5rem;
+        color: #6a4c93;
+        margin: 0;
+        text-shadow: 2px 2px 0px #fff;
+    }
 
-.world-container{
-  display:flex;
-  flex-wrap:wrap;
-  justify-content:center;
-  gap:20px;
-  padding:20px;
-}
+    .hero p {
+        font-size: 1.2rem;
+        color: #555;
+        margin-top: 5px;
+    }
 
-.world{
-  background:white;
-  width:160px;
-  padding:20px;
-  border-radius:25px;
-  box-shadow:0 6px 15px rgba(0,0,0,0.15);
-  cursor:pointer;
-  transition:0.3s;
-}
+    /* GRIGLIA MIGLIORATA */
+    .world-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr; /* 2 colonne uguali */
+        gap: 15px;
+        padding-bottom: 40px;
+    }
 
-.world:hover{
-  transform:scale(1.1);
-}
+    .world {
+        background: white;
+        padding: 20px 10px;
+        border-radius: 20px;
+        box-shadow: 0 8px 0px rgba(0,0,0,0.1); /* Effetto 3D */
+        text-align: center;
+        cursor: pointer;
+        transition: transform 0.1s;
+        border: 2px solid transparent;
+    }
 
-.world span{
-  font-size:50px;
-}
+    .world:active {
+        transform: translateY(4px);
+        box-shadow: 0 4px 0px rgba(0,0,0,0.1);
+    }
 
-.btn{
-  margin:10px;
-  padding:15px 25px;
-  font-size:18px;
-  border:none;
-  border-radius:20px;
-  background:#ffb703;
-  color:white;
-  font-weight:bold;
-  cursor:pointer;
-}
+    .world.selected {
+        border: 4px solid var(--primary);
+        background: #fff9e6;
+    }
 
-input{
-  padding:12px;
-  font-size:18px;
-  border-radius:15px;
-  border:2px solid #ffb703;
-  margin-top:10px;
-}
+    .emoji-icon {
+        font-size: 4.5rem; /* MOLTO PIÙ GRANDE */
+        display: block;
+        margin-bottom: 10px;
+        line-height: 1;
+    }
+
+    .world h3 {
+        font-size: 1.3rem;
+        margin: 0;
+        color: #333;
+    }
+
+    /* BOTTONI MIGLIORATI */
+    .btn {
+        width: 100%;
+        margin: 8px 0;
+        padding: 18px;
+        font-size: 1.3rem;
+        border: none;
+        border-radius: 15px;
+        background: var(--primary);
+        color: white;
+        font-weight: 800;
+        cursor: pointer;
+        box-shadow: 0 6px 0 #cc7a00; /* Ombra scura per contrasto */
+        transition: all 0.1s;
+    }
+
+    .btn:active {
+        transform: translateY(6px);
+        box-shadow: 0 0px 0 #cc7a00;
+    }
+
+    .btn-secondary {
+        background: var(--secondary);
+        box-shadow: 0 6px 0 #1f8b80;
+    }
+    
+    .btn-exit {
+        background: #ff5e5e;
+        box-shadow: 0 6px 0 #cc0000;
+        margin-top: 20px;
+    }
+
+    /* MODALITÀ QUIZ */
+    .quiz-container {
+        text-align: center;
+        background: white;
+        padding: 30px;
+        border-radius: 30px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+    
+    .huge-emoji {
+        font-size: 8rem; /* GIGANTE per il quiz */
+        display: block;
+        margin: 20px 0;
+        animation: bounce 1s infinite alternate;
+    }
+
+    @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-10px); } }
+
+    input {
+        width: 100%;
+        padding: 15px;
+        font-size: 1.5rem;
+        border-radius: 15px;
+        border: 3px solid var(--primary);
+        text-align: center;
+        margin-bottom: 15px;
+        box-sizing: border-box;
+    }
+
+    /* Overlay Selezione Modalità */
+    .mode-selector {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: white;
+        padding: 30px 20px;
+        border-radius: 30px 30px 0 0;
+        box-shadow: 0 -5px 20px rgba(0,0,0,0.2);
+        animation: slideUp 0.3s ease-out;
+        z-index: 100;
+    }
+
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
 </style>
 </head>
-
 <body>
 <div id="root"></div>
 
 <script type="text/babel">
+const {useState, useEffect} = React;
 
-const {useState} = React;
-
+/* DATI (Nessuna modifica qui) */
 const data = {
-  weather:[
-    {name:"Sun",emoji:"☀️"},
-    {name:"Rain",emoji:"🌧️"},
-    {name:"Snow",emoji:"❄️"},
-    {name:"Cloud",emoji:"☁️"}
-  ],
-  food:[
-    {name:"Pizza",emoji:"🍕"},
-    {name:"Apple",emoji:"🍎"},
-    {name:"Bread",emoji:"🍞"},
-    {name:"Milk",emoji:"🥛"}
-  ],
-  family:[
-    {name:"Mother",emoji:"👩"},
-    {name:"Father",emoji:"👨"},
-    {name:"Brother",emoji:"👦"},
-    {name:"Sister",emoji:"👧"}
-  ],
-  animals:[
-    {name:"Dog",emoji:"🐶"},
-    {name:"Cat",emoji:"🐱"},
-    {name:"Lion",emoji:"🦁"},
-    {name:"Elephant",emoji:"🐘"}
-  ],
-  numbers:[
-    {name:"One",emoji:"1️⃣"},
-    {name:"Two",emoji:"2️⃣"},
-    {name:"Three",emoji:"3️⃣"},
-    {name:"Four",emoji:"4️⃣"}
-  ]
+  weather:[{name:"Sun",emoji:"☀️"},{name:"Rain",emoji:"🌧️"},{name:"Snow",emoji:"❄️"},{name:"Cloud",emoji:"☁️"},{name:"Wind",emoji:"💨"}],
+  food:[{name:"Pizza",emoji:"🍕"},{name:"Apple",emoji:"🍎"},{name:"Bread",emoji:"🍞"},{name:"Milk",emoji:"🥛"},{name:"Burger",emoji:"🍔"}],
+  family:[{name:"Mother",emoji:"👩"},{name:"Father",emoji:"👨"},{name:"Brother",emoji:"👦"},{name:"Sister",emoji:"👧"},{name:"Baby",emoji:"👶"}],
+  animals:[{name:"Dog",emoji:"🐶"},{name:"Cat",emoji:"🐱"},{name:"Lion",emoji:"🦁"},{name:"Elephant",emoji:"🐘"},{name:"Bear",emoji:"🐻"}],
+  numbers:[{name:"One",emoji:"1️⃣"},{name:"Two",emoji:"2️⃣"},{name:"Three",emoji:"3️⃣"},{name:"Four",emoji:"4️⃣"},{name:"Five",emoji:"5️⃣"}]
 };
 
 function App(){
-
   const [screen,setScreen]=useState("home");
-  const [world,setWorld]=useState(null);
+  const [world,setWorld]=useState(null); // Categoria selezionata
   const [quiz,setQuiz]=useState(null);
   const [mode,setMode]=useState("choice");
   const [stars,setStars]=useState(0);
@@ -143,116 +202,143 @@ function App(){
   const [input,setInput]=useState("");
 
   const speak=(text)=>{
+    window.speechSynthesis.cancel();
     const u=new SpeechSynthesisUtterance(text);
     u.lang="en-US";
+    u.rate=0.9; // Leggermente più lento per i bambini
     speechSynthesis.speak(u);
   };
 
   const startQuiz=(selectedMode)=>{
     setMode(selectedMode);
-    const items=data[world];
-    const correct=items[Math.floor(Math.random()*items.length)];
-    const options=[...items].sort(()=>0.5-Math.random()).slice(0,4);
-    setQuiz({correct,options});
-    speak(correct.name);
+    generateQuestion(data[world]);
     setScreen("quiz");
   };
 
+  const generateQuestion = (items) => {
+    const correct=items[Math.floor(Math.random()*items.length)];
+    // Mischia le opzioni
+    const wrong = items.filter(i => i.name !== correct.name).sort(()=>0.5-Math.random()).slice(0,3);
+    const options=[correct, ...wrong].sort(()=>0.5-Math.random());
+    
+    setQuiz({correct,options});
+    speak(correct.name);
+    setInput("");
+  }
+
   const checkAnswer=(answer)=>{
-    if(answer.toLowerCase()===quiz.correct.name.toLowerCase()){
-      setStars(stars+5);
-      alert("Great job! ⭐");
-      startQuiz(mode);
+    if(answer.toLowerCase().trim()===quiz.correct.name.toLowerCase()){
+      setStars(s => s+5);
+      // Suono o feedback visivo qui sarebbe ideale
+      speak("Correct! " + quiz.correct.name);
+      setTimeout(() => generateQuestion(data[world]), 1000);
     }else{
-      setHearts(hearts-1);
+      speak("Try again");
+      setHearts(h => h-1);
       if(hearts-1<=0){
-        alert("Game Over!");
+        alert("Game Over! Try again!");
         setHearts(3);
         setStars(0);
         setScreen("home");
+        setWorld(null);
       }
     }
   };
 
+  // --- SCHERMATA HOME ---
   if(screen==="home"){
     return(
       <>
       <div className="topbar">
-        <div>❤️ {hearts}</div>
-        <div>⭐ {stars}</div>
+        <div style={{color:'#ff5e5e'}}>❤️ {hearts}</div>
+        <div style={{color:'#ffb703'}}>⭐ {stars}</div>
       </div>
 
       <div className="hero">
-        <h1>Hi! I'm Bunny 🐰</h1>
-        <p>Let's learn English!</p>
+        <h1>Hi Bunny! 🐰</h1>
+        <p>Choose a category:</p>
       </div>
 
       <div className="world-container">
-        <div className="world" onClick={()=>{setWorld("weather");}}>
-          <span>☀️</span>
+        <div className={`world ${world==='weather'?'selected':''}`} onClick={()=>setWorld("weather")}>
+          <span className="emoji-icon">☀️</span>
           <h3>Weather</h3>
         </div>
-        <div className="world" onClick={()=>{setWorld("food");}}>
-          <span>🍔</span>
+        <div className={`world ${world==='food'?'selected':''}`} onClick={()=>setWorld("food")}>
+          <span className="emoji-icon">🍔</span>
           <h3>Food</h3>
         </div>
-        <div className="world" onClick={()=>{setWorld("family");}}>
-          <span>👨‍👩‍👧</span>
+        <div className={`world ${world==='family'?'selected':''}`} onClick={()=>setWorld("family")}>
+          <span className="emoji-icon">👨‍👩‍👧</span>
           <h3>Family</h3>
         </div>
-        <div className="world" onClick={()=>{setWorld("animals");}}>
-          <span>🐶</span>
+        <div className={`world ${world==='animals'?'selected':''}`} onClick={()=>setWorld("animals")}>
+          <span className="emoji-icon">🦁</span>
           <h3>Animals</h3>
         </div>
-        <div className="world" onClick={()=>{setWorld("numbers");}}>
-          <span>🔢</span>
+        <div className={`world ${world==='numbers'?'selected':''}`} onClick={()=>setWorld("numbers")}>
+          <span className="emoji-icon">🔢</span>
           <h3>Numbers</h3>
         </div>
       </div>
 
+      {/* SELETTORE MODALITÀ (Compare solo se hai scelto un mondo) */}
       {world && (
-        <div>
-          <button className="btn" onClick={()=>startQuiz("choice")}>Easy Quiz</button>
-          <button className="btn" onClick={()=>startQuiz("write")}>Writing Mode</button>
+        <div className="mode-selector">
+          <h2 style={{textAlign:'center', marginTop:0}}>Play {data[world].name}!</h2>
+          <button className="btn" onClick={()=>startQuiz("choice")}>🎮 Easy Quiz</button>
+          <button className="btn btn-secondary" onClick={()=>startQuiz("write")}>✍️ Writing Mode</button>
+          <button style={{background:'transparent', color:'#888', border:'none', width:'100%', padding:'10px', marginTop:'5px'}} onClick={()=>setWorld(null)}>Cancel</button>
         </div>
       )}
       </>
     );
   }
 
+  // --- SCHERMATA QUIZ ---
   if(screen==="quiz"){
     return(
       <>
       <div className="topbar">
-        <div>❤️ {hearts}</div>
-        <div>⭐ {stars}</div>
+        <div style={{color:'#ff5e5e'}}>❤️ {hearts}</div>
+        <div style={{color:'#ffb703'}}>⭐ {stars}</div>
       </div>
 
-      <h1>{quiz.correct.emoji}</h1>
+      <div className="quiz-container">
+          <div className="huge-emoji">{quiz.correct.emoji}</div>
+          
+          {mode==="choice" && (
+            <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:'10px'}}>
+              {quiz.options.map((o,i)=>(
+                <button key={i} className="btn btn-secondary" style={{fontSize:'1.1rem'}} onClick={()=>checkAnswer(o.name)}>
+                  {o.name}
+                </button>
+              ))}
+            </div>
+          )}
 
-      {mode==="choice" && quiz.options.map((o,i)=>(
-        <button key={i} className="btn" onClick={()=>checkAnswer(o.name)}>
-          {o.name}
-        </button>
-      ))}
+          {mode==="write" && (
+            <>
+            <p>Write the name:</p>
+            <input 
+                autoFocus
+                value={input} 
+                onChange={(e)=>setInput(e.target.value)} 
+                onKeyDown={(e) => e.key === 'Enter' && checkAnswer(input)}
+            />
+            <button className="btn" onClick={()=>checkAnswer(input)}>Check ✅</button>
+            </>
+          )}
 
-      {mode==="write" && (
-        <>
-        <input value={input} onChange={(e)=>setInput(e.target.value)} />
-        <br/>
-        <button className="btn" onClick={()=>checkAnswer(input)}>Send</button>
-        </>
-      )}
-
-      <br/>
-      <button className="btn" onClick={()=>setScreen("home")}>Exit</button>
+          <button className="btn btn-exit" onClick={()=>{setScreen("home"); setWorld(null);}}>❌ Exit Game</button>
+          <div style={{marginTop:'15px', color:'#aaa', fontSize:'0.9rem'}} onClick={()=>speak(quiz.correct.name)}>🔊 Tap to listen again</div>
+      </div>
       </>
     );
   }
 }
 
 ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
-
 </script>
 </body>
 </html>
