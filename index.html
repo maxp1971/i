@@ -39,12 +39,20 @@
             60% { transform: translateY(-5px); }
         }
 
-        /* Letter Animation */
+        /* Letter Animation - Reduced motion option */
         .letter-anim {
-            animation: pulse 2s infinite, rainbow 3s infinite;
+            animation: pulse 2s infinite;
             font-weight: bold;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
+        
+        /* Rainbow animation only if not reduce-motion */
+        @media (prefers-reduced-motion: no-preference) {
+            .letter-anim.rainbow-enabled {
+                animation: pulse 2s infinite, rainbow 3s infinite;
+            }
+        }
+        
         @keyframes pulse {
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.1); }
@@ -63,6 +71,21 @@
             margin-bottom: 1.5rem;
             box-shadow: 0 10px 20px -5px rgba(0,150,255,0.3);
             display: block;
+            border: 4px solid white;
+        }
+        
+        /* Banner placeholder if image fails */
+        .banner-placeholder {
+            width: 100%;
+            height: 150px;
+            border-radius: 1.5rem;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            box-shadow: 0 10px 20px -5px rgba(0,150,255,0.3);
             border: 4px solid white;
         }
 
@@ -129,6 +152,7 @@
         .btn-big { width: 100%; font-size: 1.5rem; padding: 20px; border-radius: 15px; margin-bottom: 15px; color: white; box-shadow: 0 6px 0 rgba(0,0,0,0.1); }
         .btn-learn { background: #4FC3F7; }
         .btn-quiz { background: #81C784; }
+        .btn-reset { background: #FF8A65; font-size: 1rem; padding: 10px; }
         .btn-item { background: white; padding: 10px; border-radius: 15px; box-shadow: 0 4px 0 #eee; border: 1px solid #f0f0f0; color: #333; }
         
         .quiz-word { font-size: 3rem; color: #333; margin: 20px 0; }
@@ -139,7 +163,55 @@
         .error-shake { animation: shake 0.5s; }
         @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
 
-        /* High Contrast Mode - Improved with more selectors for better visibility */
+        /* Audio status indicator */
+        .audio-status {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 60;
+        }
+
+        /* Settings buttons */
+        .settings-btn {
+            margin: 5px;
+            padding: 8px 15px;
+            font-size: 0.85rem;
+            border-radius: 20px;
+            border: 2px solid #ddd;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .settings-btn.active {
+            background: #4FC3F7;
+            color: white;
+            border-color: #4FC3F7;
+        }
+
+        /* Signature */
+        .signature {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            font-size: 0.9rem;
+            color: #666;
+            font-style: italic;
+        }
+        .signature .heart {
+            color: #ff4081;
+            animation: heartbeat 1.5s infinite;
+        }
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        /* High Contrast Mode */
         body.high-contrast { 
             background-color: #000 !important; 
             color: #fff !important; 
@@ -162,6 +234,7 @@
         body.high-contrast .btn-big { background: #555 !important; color: #fff !important; }
         body.high-contrast .btn-learn { background: #0066cc !important; }
         body.high-contrast .btn-quiz { background: #006600 !important; }
+        body.high-contrast .btn-reset { background: #cc3300 !important; }
         body.high-contrast .bg-numbers { background: #4a148c !important; }
         body.high-contrast .bg-colors { background: #bf360c !important; }
         body.high-contrast .bg-fruits { background: #e65100 !important; }
@@ -176,74 +249,115 @@
         body.high-contrast .bg-clothes { background: #bf360c !important; }
         body.high-contrast .bg-transports { background: #01579b !important; }
         body.high-contrast .bg-alphabet { background: #1b5e20 !important; }
-        body.high-contrast .banner-img { filter: contrast(2) brightness(1.5); border-color: #fff !important; }
+        body.high-contrast .banner-placeholder { filter: brightness(0.7); }
         body.high-contrast .letter-anim { filter: none !important; color: #fff !important; text-shadow: 2px 2px 4px rgba(255,255,255,0.5) !important; }
+        body.high-contrast .audio-status { background: #333 !important; color: #fff !important; }
+        body.high-contrast .settings-btn { background: #333 !important; color: #fff !important; border-color: #666 !important; }
+        body.high-contrast .settings-btn.active { background: #0066cc !important; border-color: #0066cc !important; }
+        body.high-contrast .signature { color: #ccc !important; }
+        body.high-contrast .signature .heart { color: #ff4081 !important; }
     </style>
 </head>
 <body>
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect } = React;
+        const { useState, useEffect, useRef } = React;
 
         const App = () => {
             const [screen, setScreen] = useState('home');
             const [category, setCategory] = useState(null);
-            const [level, setLevel] = useState(1); // For progressive learning, e.g., numbers
-            const [stars, setStars] = useState(parseInt(localStorage.getItem('stars')) || 0);
-            const [progress, setProgress] = useState(JSON.parse(localStorage.getItem('progress')) || {});
+            const [level, setLevel] = useState(1);
+            const [stars, setStars] = useState(0);
+            const [progress, setProgress] = useState({});
             const [celebration, setCelebration] = useState(null);
             const [quiz, setQuiz] = useState(null);
             const [hint, setHint] = useState('');
             const [highContrast, setHighContrast] = useState(false);
-            const [dailyStreak, setDailyStreak] = useState(parseInt(localStorage.getItem('dailyStreak')) || 0);
-            const [lastPlayed, setLastPlayed] = useState(localStorage.getItem('lastPlayed') || '');
+            const [rainbowEnabled, setRainbowEnabled] = useState(true);
+            const [dailyStreak, setDailyStreak] = useState(0);
+            const [lastPlayed, setLastPlayed] = useState('');
+            const [audioAvailable, setAudioAvailable] = useState(true);
+            const [bannerError, setBannerError] = useState(false);
+            const [attempts, setAttempts] = useState(0);
+            
+            const initRef = useRef(false);
 
-            // Fixed High Contrast: Toggle class on body
+            // Initialize from localStorage once
             useEffect(() => {
-                if (highContrast) {
-                    document.body.classList.add('high-contrast');
-                } else {
-                    document.body.classList.remove('high-contrast');
+                if (!initRef.current) {
+                    initRef.current = true;
+                    const savedStars = parseInt(localStorage.getItem('stars')) || 0;
+                    const savedProgress = JSON.parse(localStorage.getItem('progress') || '{}');
+                    const savedStreak = parseInt(localStorage.getItem('dailyStreak')) || 0;
+                    const savedLastPlayed = localStorage.getItem('lastPlayed') || '';
+                    const savedHighContrast = localStorage.getItem('highContrast') === 'true';
+                    const savedRainbow = localStorage.getItem('rainbowEnabled') !== 'false';
+                    
+                    setStars(savedStars);
+                    setProgress(savedProgress);
+                    setDailyStreak(savedStreak);
+                    setLastPlayed(savedLastPlayed);
+                    setHighContrast(savedHighContrast);
+                    setRainbowEnabled(savedRainbow);
+                    
+                    // Check daily streak
+                    const today = new Date().toDateString();
+                    if (savedLastPlayed !== today) {
+                        const newStreak = savedStreak + 1;
+                        setDailyStreak(newStreak);
+                        setLastPlayed(today);
+                        localStorage.setItem('dailyStreak', newStreak);
+                        localStorage.setItem('lastPlayed', today);
+                    }
+                    
+                    // Check audio support
+                    if (!window.speechSynthesis) {
+                        setAudioAvailable(false);
+                    }
+                }
+            }, []);
+
+            // Save to localStorage when values change
+            useEffect(() => {
+                if (initRef.current) {
+                    localStorage.setItem('stars', stars);
+                }
+            }, [stars]);
+
+            useEffect(() => {
+                if (initRef.current) {
+                    localStorage.setItem('progress', JSON.stringify(progress));
+                }
+            }, [progress]);
+
+            useEffect(() => {
+                if (initRef.current) {
+                    localStorage.setItem('highContrast', highContrast);
+                    if (highContrast) {
+                        document.body.classList.add('high-contrast');
+                    } else {
+                        document.body.classList.remove('high-contrast');
+                    }
                 }
             }, [highContrast]);
 
             useEffect(() => {
-                localStorage.setItem('stars', stars);
-                localStorage.setItem('progress', JSON.stringify(progress));
-                const today = new Date().toDateString();
-                if (lastPlayed !== today) {
-                    setDailyStreak(s => s + 1);
-                    setLastPlayed(today);
-                    localStorage.setItem('dailyStreak', dailyStreak + 1);
-                    localStorage.setItem('lastPlayed', today);
+                if (initRef.current) {
+                    localStorage.setItem('rainbowEnabled', rainbowEnabled);
                 }
-            }, [stars, progress, dailyStreak, lastPlayed]);
+            }, [rainbowEnabled]);
 
-            // Check daily streak on mount
-            useEffect(() => {
-                const today = new Date().toDateString();
-                if (lastPlayed !== today) {
-                    const streak = parseInt(localStorage.getItem('dailyStreak')) || 0;
-                    setDailyStreak(streak + 1);
-                    localStorage.setItem('dailyStreak', streak + 1);
-                    setLastPlayed(today);
-                    localStorage.setItem('lastPlayed', today);
-                }
-            }, []);
-
-            // DATI RIORGANIZZATI CON CATEGORIA ALPHABET AGGIUNTA
+            // DATI
             const data = {
                 numbers: { 
                     name: 'Numbers', 
                     emoji: '🔢', 
                     bg: 'bg-numbers', 
                     levels: [
-                        // Level 1: 1-10
                         [{name:'One',emoji:'1️⃣'},{name:'Two',emoji:'2️⃣'},{name:'Three',emoji:'3️⃣'},{name:'Four',emoji:'4️⃣'},
                          {name:'Five',emoji:'5️⃣'},{name:'Six',emoji:'6️⃣'},{name:'Seven',emoji:'7️⃣'},{name:'Eight',emoji:'8️⃣'},
                          {name:'Nine',emoji:'9️⃣'},{name:'Ten',emoji:'🔟'}],
-                        // Level 2: 11-20
                         [{name:'Eleven',emoji:'11'},{name:'Twelve',emoji:'12'},{name:'Thirteen',emoji:'13'},{name:'Fourteen',emoji:'14'},
                          {name:'Fifteen',emoji:'15'},{name:'Sixteen',emoji:'16'},{name:'Seventeen',emoji:'17'},{name:'Eighteen',emoji:'18'},
                          {name:'Nineteen',emoji:'19'},{name:'Twenty',emoji:'20'}]
@@ -327,12 +441,8 @@
             };
 
             const speak = (text) => {
+                if (!audioAvailable) return;
                 try {
-                    if (!window.speechSynthesis) {
-                        console.warn('SpeechSynthesis not supported');
-                        // Fallback: Could add alert or silent
-                        return;
-                    }
                     window.speechSynthesis.cancel();
                     const u = new SpeechSynthesisUtterance(text);
                     u.lang = 'en-US'; 
@@ -340,6 +450,7 @@
                     window.speechSynthesis.speak(u);
                 } catch (e) {
                     console.error('Speech error:', e);
+                    setAudioAvailable(false);
                 }
             };
 
@@ -350,7 +461,19 @@
                 const wrong = items.filter(i => i.name !== correct.name).sort(() => 0.5 - Math.random()).slice(0, 3);
                 setQuiz({ correct, options: [correct, ...wrong].sort(() => 0.5 - Math.random()) });
                 setHint('');
+                setAttempts(0);
                 speak(`Find ${correct.name}`);
+            };
+
+            const getHintText = (correctName, attemptCount) => {
+                if (attemptCount === 1) {
+                    return `Hint: It starts with "${correctName.charAt(0)}"`;
+                } else if (attemptCount === 2) {
+                    const halfLength = Math.ceil(correctName.length / 2);
+                    return `Hint: First half is "${correctName.substring(0, halfLength)}"`;
+                } else {
+                    return `Hint: The answer is "${correctName}"`;
+                }
             };
 
             const checkAnswer = (item) => {
@@ -361,26 +484,65 @@
                     updateProgress(category, 1);
                     setTimeout(() => { setCelebration(null); startQuiz(); }, 1500);
                 } else {
-                    setHint(`Hint: It starts with ${quiz.correct.name.charAt(0)}`);
+                    const newAttempts = attempts + 1;
+                    setAttempts(newAttempts);
+                    setHint(getHintText(quiz.correct.name, newAttempts));
                     const btn = document.querySelector(`[data-item="${item.name}"]`);
                     if (btn) btn.classList.add('error-shake');
                     setTimeout(() => btn?.classList.remove('error-shake'), 500);
-                    speak('Try again');
+                    
+                    // Better audio feedback - say the correct answer after multiple attempts
+                    if (newAttempts >= 2) {
+                        speak(`The correct answer is ${quiz.correct.name}. Try again!`);
+                    } else {
+                        speak('Try again');
+                    }
+                }
+            };
+
+            const resetProgress = () => {
+                if (window.confirm('Are you sure you want to reset all your progress? This cannot be undone!')) {
+                    localStorage.clear();
+                    setStars(0);
+                    setProgress({});
+                    setDailyStreak(0);
+                    setLastPlayed('');
+                    alert('Progress reset! 🔄');
                 }
             };
 
             const toggleHighContrast = () => setHighContrast(c => !c);
+            const toggleRainbow = () => setRainbowEnabled(r => !r);
 
             if (screen === 'home') {
                 return (
                     <div className="container">
-                        <img src="banner.PNG" className="banner-img" alt="Bunny Banner" loading="lazy" />
+                        {!audioAvailable && (
+                            <div className="audio-status" style={{background: '#ffebee', color: '#c62828'}}>
+                                🔇 Audio unavailable
+                            </div>
+                        )}
+                        
+                        {!bannerError ? (
+                            <img 
+                                src="banner.PNG" 
+                                className="banner-img" 
+                                alt="Bunny Banner" 
+                                loading="lazy"
+                                onError={() => setBannerError(true)}
+                            />
+                        ) : (
+                            <div className="banner-placeholder">
+                                🐰 Learn English 📚
+                            </div>
+                        )}
+                        
                         <div className="grid-4">
                             {Object.keys(data).map(k => {
                                 const catProgress = progress[k]?.completed || 0;
                                 const total = data[k].levels ? data[k].levels.flat().length : data[k].items.length;
                                 return (
-                                    <button key={k} className={`btn btn-category ${data[k].bg}`} onClick={() => { setCategory(k); setScreen('mode'); }}>
+                                    <button key={k} className={`btn btn-category ${data[k].bg}`} onClick={() => { setCategory(k); setLevel(1); setScreen('mode'); }}>
                                         <div className="emoji-large">{data[k].emoji}</div>
                                         <div className="category-name">{data[k].name}</div>
                                         {catProgress > 0 && <div className="progress-bar" style={{width: '100%', marginTop: '5px'}}><div className="progress-fill" style={{width: `${(catProgress / total) * 100}%`}}></div></div>}
@@ -391,7 +553,26 @@
                         <div className="stats-card">
                             <h3>My Stars: ⭐ {stars}</h3>
                             <p>Daily Streak: 🔥 {dailyStreak}</p>
-                            <button onClick={toggleHighContrast} style={{marginTop: '10px', padding: '5px 10px', fontSize: '0.8rem'}}>{highContrast ? 'Normal Mode' : 'High Contrast'}</button>
+                            <div style={{marginTop: '15px'}}>
+                                <button 
+                                    className={`settings-btn ${highContrast ? 'active' : ''}`}
+                                    onClick={toggleHighContrast}
+                                >
+                                    {highContrast ? '✓' : ''} High Contrast
+                                </button>
+                                <button 
+                                    className={`settings-btn ${rainbowEnabled ? 'active' : ''}`}
+                                    onClick={toggleRainbow}
+                                >
+                                    {rainbowEnabled ? '✓' : ''} Rainbow Effect
+                                </button>
+                            </div>
+                            <button className="btn btn-big btn-reset" style={{marginTop: '10px'}} onClick={resetProgress}>
+                                🔄 Reset Progress
+                            </button>
+                        </div>
+                        <div className="signature">
+                            Made with <span className="heart">♥</span> by Chloe
                         </div>
                         <div className="bunny-mascot">🐰</div>
                     </div>
@@ -409,7 +590,7 @@
                             <div style={{marginBottom: '20px'}}>
                                 <p>Level: {level} / 2</p>
                                 <button className="btn-big" style={{background: '#9575CD', width: 'auto', padding: '10px 20px'}} onClick={() => setLevel(l => l < 2 ? l + 1 : 1)}>
-                                    {level === 1 ? 'Next Level' : 'Previous Level'}
+                                    {level === 1 ? 'Next Level (11-20)' : 'Previous Level (1-10)'}
                                 </button>
                             </div>
                         )}
@@ -440,9 +621,18 @@
                         <div className="grid-3">
                             {currentItems.map((item, i) => {
                                 const hue = (i * 360 / currentItems.length);
+                                const isAlphabet = category === 'alphabet';
                                 return (
                                     <button key={i} className="btn btn-item" onClick={() => speak(item.name)}>
-                                        <div className={category === 'alphabet' ? 'letter-anim' : ''} style={{fontSize: category === 'alphabet' ? '4rem' : '2.5rem', color: category === 'alphabet' ? `hsl(${hue}, 100%, 50%)` : 'inherit'}}>{item.emoji}</div>
+                                        <div 
+                                            className={isAlphabet ? `letter-anim ${rainbowEnabled ? 'rainbow-enabled' : ''}` : ''} 
+                                            style={{
+                                                fontSize: isAlphabet ? '4rem' : '2.5rem', 
+                                                color: isAlphabet && !rainbowEnabled ? `hsl(${hue}, 100%, 50%)` : 'inherit'
+                                            }}
+                                        >
+                                            {item.emoji}
+                                        </div>
                                         <div style={{color:'#555', marginTop:'5px'}}>{item.name}</div>
                                     </button>
                                 );
@@ -460,16 +650,27 @@
                         <div style={{margin:'20px 0'}}>
                             <p style={{color:'#666', fontSize:'1.2rem'}}>Find the:</p>
                             <h1 className="quiz-word">{quiz.correct.name}</h1>
-                            <button onClick={() => speak(quiz.correct.name)} style={{background:'none', border:'none', fontSize:'1.2rem', color:'#0066cc'}}>🔊 Listen</button>
+                            <button onClick={() => speak(quiz.correct.name)} style={{background:'none', border:'none', fontSize:'1.2rem', color:'#0066cc', cursor: 'pointer'}}>
+                                🔊 {audioAvailable ? 'Listen' : 'Audio Off'}
+                            </button>
                             {hint && <p className="hint">{hint}</p>}
                         </div>
 
                         <div className="grid-2">
                             {quiz.options.map((item, i) => {
                                 const hue = (i * 360 / quiz.options.length);
+                                const isAlphabet = category === 'alphabet';
                                 return (
                                     <button key={i} className="btn btn-item" style={{height:'120px'}} data-item={item.name} onClick={() => checkAnswer(item)}>
-                                        <div className={category === 'alphabet' ? 'letter-anim' : ''} style={{fontSize: category === 'alphabet' ? '5rem' : '3.5rem', color: category === 'alphabet' ? `hsl(${hue}, 100%, 50%)` : 'inherit'}}>{item.emoji}</div>
+                                        <div 
+                                            className={isAlphabet ? `letter-anim ${rainbowEnabled ? 'rainbow-enabled' : ''}` : ''} 
+                                            style={{
+                                                fontSize: isAlphabet ? '5rem' : '3.5rem', 
+                                                color: isAlphabet && !rainbowEnabled ? `hsl(${hue}, 100%, 50%)` : 'inherit'
+                                            }}
+                                        >
+                                            {item.emoji}
+                                        </div>
                                     </button>
                                 );
                             })}
