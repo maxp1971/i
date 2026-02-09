@@ -1,222 +1,268 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bunny Memory Game</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Learn English">
+    <title>Learn English - Bunny Adventure</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap');
 
-<style>
-body{
-font-family: 'Comic Sans MS', sans-serif;
-background: linear-gradient(135deg,#ffe4f2,#e0f7ff);
-text-align:center;
-margin:0;
-padding:0;
-}
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Fredoka', 'Comic Sans MS', sans-serif; 
+            background-color: #e6f7ff; 
+            -webkit-tap-highlight-color: transparent; 
+        }
+        .container { min-height: 100vh; padding: 1rem; max-width: 600px; margin: 0 auto; }
+        
+        /* BANNER */
+        .banner-img {
+            width: 100%;
+            border-radius: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 10px 20px -5px rgba(0,150,255,0.3);
+            display: block;
+            border: 4px solid white;
+        }
 
-h1{
-font-size:2.5rem;
-margin-top:20px;
-}
+        /* GRIGLIE */
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 1.5rem; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding-bottom: 1rem; }
+        .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
 
-.mode-btn{
-padding:10px 20px;
-margin:5px;
-border:none;
-border-radius:20px;
-font-size:1rem;
-cursor:pointer;
-background:#ffb6d9;
-}
+        /* BOTTONI CATEGORIE */
+        .btn { border: none; cursor: pointer; transition: transform 0.1s; font-weight: bold; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+        .btn:active { transform: scale(0.95); }
+        
+        .btn-category { 
+            color: white; 
+            padding: 0.8rem 0.2rem; 
+            border-radius: 1rem; 
+            box-shadow: 0 5px 0 rgba(0,0,0,0.1); 
+            height: 100px; 
+            width: 100%;
+            position: relative;
+            /* MODIFICA: BORDO SPESSO AGGIUNTO */
+            border: 5px solid rgba(255, 255, 255, 0.9); 
+        }
+        .btn-category .emoji-large { font-size: 2.2rem; margin-bottom: 5px; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.2)); }
+        .btn-category .category-name { font-size: 0.75rem; font-weight: 600; line-height: 1.1; }
+        
+        /* COLORI */
+        .bg-numbers { background: #9575CD; }
+        .bg-colors { background: #FF8A65; }
+        .bg-fruits { background: #FFB74D; }
+        .bg-animals { background: #F06292; }
+        .bg-weather { background: #4FC3F7; }
+        .bg-food { background: #81C784; }
+        .bg-family { background: #FFD54F; color: #d35400; }
+        .bg-months { background: #4DB6AC; }
+        .bg-gestures { background: #7986CB; }
+        .bg-shapes { background: #BA68C8; }
+        .bg-body { background: #90A4AE; }
+        
+        /* UI ELEMENTI */
+        .btn-back { 
+            background: white; 
+            padding: 15px 30px; 
+            border-radius: 50px; 
+            box-shadow: 0 6px 15px rgba(0,0,0,0.15); 
+            margin-bottom: 20px; 
+            color: #333; 
+            font-weight: 800; 
+            font-size: 1.4rem;
+            border: 3px solid #e0e0e0; 
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
 
-.grid{
-display:grid;
-grid-template-columns:repeat(4,1fr);
-gap:10px;
-max-width:400px;
-margin:20px auto;
-}
-
-.card{
-background:white;
-border-radius:15px;
-height:80px;
-display:flex;
-align-items:center;
-justify-content:center;
-font-size:2rem;
-cursor:pointer;
-box-shadow:0 4px 10px rgba(0,0,0,0.1);
-}
-
-.card.flipped{
-background:#fffde7;
-}
-
-.hidden{
-visibility:hidden;
-}
-
-.bunny{
-font-size:3rem;
-margin-top:10px;
-animation:bounce 2s infinite;
-}
-
-@keyframes bounce{
-0%,100%{transform:translateY(0)}
-50%{transform:translateY(-10px)}
-}
-
-.score{
-font-size:1.2rem;
-margin-top:10px;
-}
-</style>
+        .stats-card { background: white; border-radius: 20px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); margin-top: 20px; text-align: center; }
+        
+        .mode-card { background: white; padding: 20px; border-radius: 20px; margin-top: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        .btn-big { width: 100%; font-size: 1.5rem; padding: 20px; border-radius: 15px; margin-bottom: 15px; color: white; box-shadow: 0 6px 0 rgba(0,0,0,0.1); }
+        .btn-learn { background: #4FC3F7; }
+        .btn-quiz { background: #81C784; }
+        .btn-item { background: white; padding: 10px; border-radius: 15px; box-shadow: 0 4px 0 #eee; border: 1px solid #f0f0f0; }
+        
+        .quiz-word { font-size: 3rem; color: #333; margin: 20px 0; }
+        .celebration { position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%); font-size: 5rem; animation: pop 0.5s; z-index: 100; pointer-events: none; }
+        @keyframes pop { 0% { transform: translate(-50%,-50%) scale(0); } 80% { transform: translate(-50%,-50%) scale(1.2); } 100% { transform: translate(-50%,-50%) scale(1); } }
+    </style>
 </head>
-
 <body>
+    <div id="root"></div>
 
-<h1>🐰 Bunny Memory</h1>
+    <script type="text/babel">
+        const { useState, useEffect } = React;
 
-<div>
-<button class="mode-btn" onclick="setMode('easy')">4-6 👶</button>
-<button class="mode-btn" onclick="setMode('medium')">7-9 👦</button>
-<button class="mode-btn" onclick="setMode('hard')">10-12 🧠</button>
-</div>
+        const App = () => {
+            const [screen, setScreen] = useState('home');
+            const [category, setCategory] = useState(null);
+            const [stars, setStars] = useState(parseInt(localStorage.getItem('stars')) || 0);
+            const [celebration, setCelebration] = useState(null);
+            const [quiz, setQuiz] = useState(null);
 
-<div class="score">
-Moves: <span id="moves">0</span> |
-Best: <span id="best">0</span>
-</div>
+            useEffect(() => { localStorage.setItem('stars', stars); }, [stars]);
 
-<div class="grid" id="grid"></div>
+            // DATI RIORGANIZZATI E ARRICCHITI
+            const data = {
+                // 1. NUMERI (1-20)
+                numbers: { 
+                    name: 'Numbers', 
+                    emoji: '🔢', 
+                    bg: 'bg-numbers', 
+                    items: [
+                        {name:'One',emoji:'1️⃣'},{name:'Two',emoji:'2️⃣'},{name:'Three',emoji:'3️⃣'},{name:'Four',emoji:'4️⃣'},
+                        {name:'Five',emoji:'5️⃣'},{name:'Six',emoji:'6️⃣'},{name:'Seven',emoji:'7️⃣'},{name:'Eight',emoji:'8️⃣'},
+                        {name:'Nine',emoji:'9️⃣'},{name:'Ten',emoji:'🔟'},
+                        {name:'Eleven',emoji:'11'},{name:'Twelve',emoji:'12'},{name:'Thirteen',emoji:'13'},{name:'Fourteen',emoji:'14'},
+                        {name:'Fifteen',emoji:'15'},{name:'Sixteen',emoji:'16'},{name:'Seventeen',emoji:'17'},{name:'Eighteen',emoji:'18'},
+                        {name:'Nineteen',emoji:'19'},{name:'Twenty',emoji:'20'}
+                    ]
+                },
+                // 2. COLORI
+                colors: { name: 'Colors', emoji: '🎨', bg: 'bg-colors', items: [
+                    {name:'Red',emoji:'❤️'},{name:'Blue',emoji:'💙'},{name:'Green',emoji:'💚'},{name:'Yellow',emoji:'💛'},
+                    {name:'Orange',emoji:'🧡'},{name:'Purple',emoji:'💜'},{name:'Pink',emoji:'🩷'},{name:'Black',emoji:'🖤'},
+                    {name:'White',emoji:'🤍'},{name:'Brown',emoji:'🤎'}
+                ]},
+                // 3. FRUTTI (Arricchiti)
+                fruits: { name: 'Fruits', emoji: '🍎', bg: 'bg-fruits', items: [
+                    {name:'Apple',emoji:'🍎'},{name:'Banana',emoji:'🍌'},{name:'Grape',emoji:'🍇'},{name:'Orange',emoji:'🍊'},
+                    {name:'Cherry',emoji:'🍒'},{name:'Strawberry',emoji:'🍓'},{name:'Watermelon',emoji:'🍉'},{name:'Peach',emoji:'🍑'},
+                    {name:'Pineapple',emoji:'🍍'},{name:'Pear',emoji:'🍐'},{name:'Lemon',emoji:'🍋'},{name:'Kiwi',emoji:'🥝'}
+                ]},
+                // 4. ANIMALI (Arricchiti)
+                animals: { name: 'Animals', emoji: '🐶', bg: 'bg-animals', items: [
+                    {name:'Cat',emoji:'🐱'},{name:'Dog',emoji:'🐶'},{name:'Lion',emoji:'🦁'},{name:'Elephant',emoji:'🐘'},
+                    {name:'Monkey',emoji:'🐵'},{name:'Tiger',emoji:'🐯'},{name:'Bear',emoji:'🐻'},{name:'Rabbit',emoji:'🐰'},
+                    {name:'Fox',emoji:'🦊'},{name:'Panda',emoji:'🐼'},{name:'Pig',emoji:'🐷'},{name:'Cow',emoji:'🐮'}
+                ]},
+                
+                // LE ALTRE CATEGORIE
+                months: { name: 'Months', emoji: '📅', bg: 'bg-months', items: [
+                    {name:'January',emoji:'❄️'},{name:'February',emoji:'💘'},{name:'March',emoji:'🌱'},{name:'April',emoji:'🌧️'},
+                    {name:'May',emoji:'🌸'},{name:'June',emoji:'☀️'},{name:'July',emoji:'🏖️'},{name:'August',emoji:'🍦'},
+                    {name:'September',emoji:'🎒'},{name:'October',emoji:'🎃'},{name:'November',emoji:'🍂'},{name:'December',emoji:'🎄'}
+                ]},
+                weather: { name: 'Weather', emoji: '🌤️', bg: 'bg-weather', items: [{name:'Sun',emoji:'☀️'},{name:'Rain',emoji:'🌧️'},{name:'Cloud',emoji:'☁️'},{name:'Snow',emoji:'❄️'},{name:'Wind',emoji:'💨'},{name:'Storm',emoji:'⚡'}]},
+                food: { name: 'Food', emoji: '🍔', bg: 'bg-food', items: [{name:'Apple',emoji:'🍎'},{name:'Pizza',emoji:'🍕'},{name:'Burger',emoji:'🍔'},{name:'Ice Cream',emoji:'🍦'},{name:'Cake',emoji:'🍰'},{name:'Milk',emoji:'🥛'}]},
+                family: { name: 'Family', emoji: '👨‍👩‍👧', bg: 'bg-family', items: [{name:'Mom',emoji:'👩'},{name:'Dad',emoji:'👨'},{name:'Sister',emoji:'👧'},{name:'Brother',emoji:'👦'},{name:'Grandma',emoji:'👵'},{name:'Grandpa',emoji:'👴'}]},
+                gestures: { name: 'Gestures', emoji: '🤝', bg: 'bg-gestures', items: [{name:'Hi',emoji:'👋'},{name:'Yes',emoji:'👍'},{name:'No',emoji:'👎'},{name:'Clap',emoji:'👏'},{name:'Peace',emoji:'✌️'},{name:'Love',emoji:'🤟'}]},
+                shapes: { name: 'Shapes', emoji: '⭐', bg: 'bg-shapes', items: [{name:'Circle',emoji:'⭕'},{name:'Square',emoji:'🟦'},{name:'Star',emoji:'⭐'},{name:'Heart',emoji:'❤️'},{name:'Triangle',emoji:'🔺'},{name:'Diamond',emoji:'💎'}]},
+                body: { name: 'Body', emoji: '👀', bg: 'bg-body', items: [{name:'Eye',emoji:'👀'},{name:'Ear',emoji:'👂'},{name:'Hand',emoji:'👋'},{name:'Nose',emoji:'👃'},{name:'Mouth',emoji:'👄'},{name:'Foot',emoji:'🦶'}]}
+            };
 
-<div class="bunny">🐰</div>
+            const speak = (text) => {
+                window.speechSynthesis.cancel();
+                const u = new SpeechSynthesisUtterance(text);
+                u.lang = 'en-US'; 
+                u.rate = 0.9;
+                window.speechSynthesis.speak(u);
+            };
 
-<script>
-let mode="easy";
-let firstCard=null;
-let lock=false;
-let moves=0;
-let bestScore=localStorage.getItem("bestScore") || 0;
-document.getElementById("best").innerText=bestScore;
+            const startQuiz = () => {
+                const items = data[category].items;
+                const correct = items[Math.floor(Math.random() * items.length)];
+                const wrong = items.filter(i => i.name !== correct.name).sort(() => 0.5 - Math.random()).slice(0, 3);
+                setQuiz({ correct, options: [correct, ...wrong].sort(() => 0.5 - Math.random()) });
+                speak(`Find ${correct.name}`);
+            };
 
-const data={
-easy:[
-{emoji:"🐶",word:"Dog"},
-{emoji:"🐱",word:"Cat"},
-{emoji:"🍎",word:"Apple"},
-{emoji:"🚗",word:"Car"}
-],
-medium:[
-{emoji:"🐶",word:"Dog"},
-{emoji:"🐱",word:"Cat"},
-{emoji:"🍎",word:"Apple"},
-{emoji:"🚗",word:"Car"}
-],
-hard:[
-{word1:"Dog",word2:"Dog"},
-{word1:"Cat",word2:"Cat"},
-{word1:"Apple",word2:"Apple"},
-{word1:"Car",word2:"Car"}
-]
-};
+            const checkAnswer = (item) => {
+                if(item.name === quiz.correct.name) {
+                    setStars(s => s + 2);
+                    setCelebration('⭐');
+                    speak('Good job!');
+                    setTimeout(() => { setCelebration(null); startQuiz(); }, 1200);
+                } else {
+                    speak('Try again');
+                }
+            };
 
-function setMode(m){
-mode=m;
-startGame();
-}
+            if (screen === 'home') {
+                return (
+                    <div className="container">
+                        <img src="banner.PNG" className="banner-img" alt="Bunny Banner" />
+                        <div className="grid-4">
+                            {Object.keys(data).map(k => (
+                                <button key={k} className={`btn btn-category ${data[k].bg}`} onClick={() => { setCategory(k); setScreen('mode'); }}>
+                                    <div className="emoji-large">{data[k].emoji}</div>
+                                    <div className="category-name">{data[k].name}</div>
+                                </button>
+                            ))}
+                        </div>
+                        <div className="stats-card">
+                            <h3>My Stars: ⭐ {stars}</h3>
+                        </div>
+                    </div>
+                );
+            }
 
-function speak(text){
-let u=new SpeechSynthesisUtterance(text);
-u.lang="en-US";
-speechSynthesis.speak(u);
-}
+            if (screen === 'mode') {
+                return (
+                    <div className="container" style={{textAlign:'center'}}>
+                        <button className="btn-back" onClick={() => setScreen('home')}>⬅️ Back</button>
+                        <h1 style={{fontSize:'3rem', marginBottom:'10px'}}>{data[category].emoji}</h1>
+                        <h2 style={{marginBottom:'20px', color:'#333'}}>{data[category].name}</h2>
+                        
+                        <div className="mode-card">
+                            <button className="btn btn-big btn-learn" onClick={() => setScreen('learn')}>📚 Learn Words</button>
+                            <button className="btn btn-big btn-quiz" onClick={() => { setScreen('quiz'); startQuiz(); }}>🎮 Play Quiz</button>
+                        </div>
+                    </div>
+                );
+            }
 
-function startGame(){
-const grid=document.getElementById("grid");
-grid.innerHTML="";
-moves=0;
-document.getElementById("moves").innerText=0;
+            if (screen === 'learn') {
+                return (
+                    <div className="container">
+                        <button className="btn-back" onClick={() => setScreen('mode')}>⬅️ Back</button>
+                        <h2 style={{textAlign:'center', marginBottom:'15px'}}>{data[category].name}</h2>
+                        <div className="grid-3">
+                            {data[category].items.map((item, i) => (
+                                <button key={i} className="btn btn-item" onClick={() => speak(item.name)}>
+                                    <div style={{fontSize:'2.5rem'}}>{item.emoji}</div>
+                                    <div style={{color:'#555', marginTop:'5px'}}>{item.name}</div>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                );
+            }
 
-let cards=[];
+            if (screen === 'quiz' && quiz) {
+                return (
+                    <div className="container" style={{textAlign:'center'}}>
+                        <button className="btn-back" onClick={() => setScreen('mode')}>⬅️ Quit</button>
+                        <div style={{margin:'20px 0'}}>
+                            <p style={{color:'#666', fontSize:'1.2rem'}}>Find the:</p>
+                            <h1 className="quiz-word">{quiz.correct.name}</h1>
+                            <button onClick={() => speak(quiz.correct.name)} style={{background:'none', border:'none', fontSize:'1.2rem', color:'#0066cc'}}>🔊 Listen</button>
+                        </div>
 
-if(mode==="easy"){
-data.easy.forEach(i=>{
-cards.push({content:i.emoji,match:i.word});
-cards.push({content:i.emoji,match:i.word});
-});
-}
-else if(mode==="medium"){
-data.medium.forEach(i=>{
-cards.push({content:i.emoji,match:i.word});
-cards.push({content:i.word,match:i.word});
-});
-}
-else{
-data.hard.forEach(i=>{
-cards.push({content:i.word1,match:i.word1});
-cards.push({content:i.word2,match:i.word2});
-});
-}
+                        <div className="grid-2">
+                            {quiz.options.map((item, i) => (
+                                <button key={i} className="btn btn-item" style={{height:'120px'}} onClick={() => checkAnswer(item)}>
+                                    <div style={{fontSize:'3.5rem'}}>{item.emoji}</div>
+                                </button>
+                            ))}
+                        </div>
+                        {celebration && <div className="celebration">{celebration}</div>}
+                    </div>
+                );
+            }
+        };
 
-cards.sort(()=>0.5-Math.random());
-
-cards.forEach(card=>{
-let div=document.createElement("div");
-div.className="card";
-div.dataset.match=card.match;
-div.dataset.content=card.content;
-div.innerText="❓";
-
-div.onclick=()=>{
-if(lock || div.classList.contains("flipped"))return;
-
-div.innerText=div.dataset.content;
-div.classList.add("flipped");
-speak(div.dataset.match);
-
-if(!firstCard){
-firstCard=div;
-}else{
-lock=true;
-moves++;
-document.getElementById("moves").innerText=moves;
-
-if(firstCard.dataset.match===div.dataset.match){
-setTimeout(()=>{
-firstCard.classList.add("hidden");
-div.classList.add("hidden");
-firstCard=null;
-lock=false;
-
-if(document.querySelectorAll(".hidden").length===cards.length){
-alert("Great job! 🎉");
-if(bestScore==0 || moves<bestScore){
-localStorage.setItem("bestScore",moves);
-}
-}
-},500);
-}else{
-setTimeout(()=>{
-firstCard.innerText="❓";
-div.innerText="❓";
-firstCard.classList.remove("flipped");
-div.classList.remove("flipped");
-firstCard=null;
-lock=false;
-},800);
-}
-}
-};
-
-grid.appendChild(div);
-});
-}
-
-startGame();
-</script>
-
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
 </body>
 </html>
